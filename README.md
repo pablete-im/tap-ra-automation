@@ -1,6 +1,6 @@
 ## Purpose
 
-This project is designed to build a Tanzu Application Platform 1.2 multicluster instances on VCD+CSE TKGm clusters that corresponds to the [Tanzu Application Platform Reference Design](https://github.com/vmware-tanzu-labs/tanzu-validated-solutions/blob/main/src/reference-designs/tap-architecture-planning.md) . 
+This project is designed to build a Tanzu Application Platform 1.3 multicluster instances on VCD+CSE TKGm clusters that corresponds to the [Tanzu Application Platform Reference Design](https://github.com/vmware-tanzu-labs/tanzu-validated-solutions/blob/main/src/reference-designs/tap-architecture-planning.md) . 
 
 This is a 1-step automation with minimum inputs into config files. This scripts assume that Tanzu Cluster essentials are already present in the TKG cluster.
 
@@ -27,10 +27,10 @@ Add following details into `/tap-scripts/var.conf` file to fullfill tap prerequi
 ```
 TAP_DEV_NAMESPACE="default"
 os=<terminal os as m or l.  m for Mac , l for linux/ubuntu>
-INSTALL_REGISTRY_HOSTNAME="registry.tanzu.vmware.com"
-INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:e00f33b92d418f49b1af79f42cb13d6765f1c8c731f4528dfff8343af042dc3e
+INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
+INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:54bf611711923dccd7c7f10603c846782b90644d48f1cb570b43a082d18e23b9
 DOCKERHUB_REGISTRY_URL=index.docker.io
-TAP_VERSION=1.2.0
+TAP_VERSION=1.3.0
 TAP_NAMESPACE="tap-install"
 tanzu_net_reg_user=<Provide tanzu net user>
 tanzu_net_reg_password=<Provide tanzu net password>
@@ -80,8 +80,9 @@ TAP_GUI_CERT=<HTTPS FullChain cert absolute path  for tap-gui>
 TAP_GUI_KEY=<HTTPS Key absolute path for tap-gui>
 
 #tap demo app properties
-TAP_APP_NAME="tap-demo"
-TAP_APP_GIT_URL="https://github.com/sample-accelerators/spring-petclinic"
+TAP_APP_NAME="tanzu-java-web-app"
+TAP_APP_GIT_URL="https://github.com/vmware-tanzu/application-accelerator-samples"
+
 ```
 
 In the following lines you will find notes on how to obtain the values to fill some of the  required variables:

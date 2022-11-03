@@ -34,10 +34,13 @@ metadata:
   name: k8s-reader
 rules:
 - apiGroups: ['']
-  resources: ['pods', 'services', 'configmaps']
+  resources: ['pods', 'pods/log', 'services', 'configmaps', 'limitranges']
+  verbs: ['get', 'watch', 'list']
+- apiGroups: ['metrics.k8s.io']
+  resources: ['pods']
   verbs: ['get', 'watch', 'list']
 - apiGroups: ['apps']
-  resources: ['deployments', 'replicasets']
+  resources: ['deployments', 'replicasets', 'statefulsets', 'daemonsets']
   verbs: ['get', 'watch', 'list']
 - apiGroups: ['autoscaling']
   resources: ['horizontalpodautoscalers']
@@ -79,6 +82,7 @@ rules:
 - apiGroups: ['source.apps.tanzu.vmware.com']
   resources:
   - imagerepositories
+  - mavenartifacts
   verbs: ['get', 'watch', 'list']
 - apiGroups: ['conventions.apps.tanzu.vmware.com']
   resources:
@@ -104,6 +108,9 @@ rules:
   resources:
   - apps
   verbs: ['get', 'watch', 'list']
+- apiGroups: [ 'batch' ]
+  resources: [ 'jobs', 'cronjobs' ]
+  verbs: [ 'get', 'watch', 'list' ]
 
 EOF
 
