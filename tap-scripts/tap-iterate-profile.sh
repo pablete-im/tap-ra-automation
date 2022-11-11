@@ -7,7 +7,7 @@ source var.conf
 export TAP_REGISTRY_SERVER=$registry_url
 export TAP_REGISTRY_USER=$registry_user
 export TAP_REGISTRY_PASSWORD=$registry_password
-export TAP_CNRS_DOMAIN=$tap_run_domain
+export TAP_CNRS_DOMAIN=$tap_iterate_domain
 export INSTALL_REGISTRY_USERNAME=$tanzu_net_reg_user
 export INSTALL_REGISTRY_PASSWORD=$tanzu_net_reg_password
 
@@ -51,7 +51,7 @@ contour:
       type: LoadBalancer
 
 cnrs:
-  domain_name: "${tap_iterate_cnrs_domain}"
+  domain_name: "${TAP_CNRS_DOMAIN}"
 
 excluded_packages:
   - policy.apps.tanzu.vmware.com

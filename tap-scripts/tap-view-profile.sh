@@ -266,9 +266,9 @@ tanzu package installed get tap -n "${TAP_NAMESPACE}"
 #  namespace: cert-manager
 #  name: tap-gui
 #spec:
-#  commonName: tap-gui.${tap_view_app_domain}
+#  commonName: tap-gui.${tap_view_domain}
 #  dnsNames:
-#  - tap-gui.${tap_view_app_domain}
+#  - tap-gui.${tap_view_domain}
 #  issuerRef:
 #    name: letsencrypt-http01-issuer
 #    kind: ClusterIssuer

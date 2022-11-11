@@ -24,7 +24,7 @@ contour:
       type: LoadBalancer
 
 cnrs:
-  domain_name: "${tap_run_domain}"
+  domain_name: "${TAP_CNRS_DOMAIN}"
 
 appliveview_connector:
   backend:
