@@ -114,17 +114,47 @@ rules:
 
 EOF
 
-kubectl create -f tap-gui-viewer-service-account-rbac.yaml
+#switch to tap build cluster to get token 
+echo "login to build cluster to apply tap-gui-viewer-service-account-rbac.yaml"
+aws eks --region $aws_region update-kubeconfig --name ${TAP_BUILD_CLUSTER_NAME}
+kubectl apply -f tap-gui-viewer-service-account-rbac.yaml
 
-CLUSTER_URL=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+CLUSTER_URL_BUILD=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+CLUSTER_TOKEN_BUILD=$(kubectl -n tap-gui get secret $(kubectl -n tap-gui get sa tap-gui-viewer -o=json \
+	| jq -r '.secrets[0].name') -o=json \
+	| jq -r '.data["token"]' \
+	| base64 --decode)
 
-CLUSTER_TOKEN=$(kubectl -n tap-gui get secret $(kubectl -n tap-gui get sa tap-gui-viewer -o=json \
-| jq -r '.secrets[0].name') -o=json \
-| jq -r '.data["token"]' \
-| base64 --decode)
+#switch to tap run cluster to get token 
+echo "login to run cluster to apply tap-gui-viewer-service-account-rbac.yaml"
+aws eks --region $aws_region update-kubeconfig --name ${TAP_RUN_CLUSTER_NAME}
+kubectl apply -f tap-gui-viewer-service-account-rbac.yaml
 
-echo CLUSTER_URL: $CLUSTER_URL
-echo CLUSTER_TOKEN: $CLUSTER_TOKEN
+CLUSTER_URL_RUN=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+CLUSTER_TOKEN_RUN=$(kubectl -n tap-gui get secret $(kubectl -n tap-gui get sa tap-gui-viewer -o=json \
+	| jq -r '.secrets[0].name') -o=json \
+	| jq -r '.data["token"]' \
+	| base64 --decode)
+
+echo  "Login to View Cluster !!! "
+#login to kubernets eks view cluster and get token
+aws eks --region $aws_region update-kubeconfig --name ${TAP_VIEW_CLUSTER_NAME}
+
+CLUSTER_URL_VIEW=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+CLUSTER_TOKEN_VIEW=$(kubectl -n tap-gui get secret $(kubectl -n tap-gui get sa tap-gui-viewer -o=json \
+	| jq -r '.secrets[0].name') -o=json \
+	| jq -r '.data["token"]' \
+	| base64 --decode)
+
+
+echo CLUSTER_URL_RUN: $CLUSTER_URL_RUN
+echo CLUSTER_TOKEN_RUN: $CLUSTER_TOKEN_RUN
+
+echo CLUSTER_URL_BUILD: $CLUSTER_URL_BUILD
+echo CLUSTER_TOKEN_BUILD: $CLUSTER_TOKEN_BUILD
+
+echo CLUSTER_URL_VIEW: $CLUSTER_URL_VIEW
+echo CLUSTER_TOKEN_VIEW: $CLUSTER_TOKEN_VIEW
 
 
 # set the following variables
@@ -139,8 +169,7 @@ profile: view
 ceip_policy_disclosed: true
 
 shared:
-  ingress_domain: "${tap_view_app_domain}"
-  
+  ingress_domain: "${tap_view_domain}" 
 contour:
   envoy:
     service:
@@ -150,37 +179,36 @@ accelerator:
   server.service_type: ClusterIP
   ingress:
     include: "true"
-  domain: "${tap_view_app_domain}"
+  domain: "${tap_view_domain}"
 
 learningcenter:
-  ingressDomain: "learning.${tap_view_app_domain}"
+  ingressDomain: "learning.${tap_view_domain}"
   ingressClass: contour
-
 tap_gui:
   service_type: ClusterIP
   ingressEnabled: "true"
-  ingressDomain: "${tap_view_app_domain}"
+  ingressDomain: "${tap_view_domain}"
   tls:
     namespace: tap-gui
     secretName: tap-gui-cert
   app_config:
     app:
-      baseUrl: "https://tap-gui.${tap_view_app_domain}"
+      baseUrl: "https://tap-gui.${tap_view_domain}"
     catalog:
       locations:
         - type: url
           target: ${tap_git_catalog_url}
     backend:
-        baseUrl: "https://tap-gui.${tap_view_app_domain}"
+        baseUrl: "https://tap-gui.${tap_view_domain}"
         cors:
-          origin: "https://tap-gui.${tap_view_app_domain}"
+          origin: "https://tap-gui.${tap_view_domain}"
     proxy:
       /metadata-store:
         target: https://metadata-store-app.metadata-store:8443/api/v1
         changeOrigin: true
         secure: false
         headers:
-          Authorization: "Bearer ${CLUSTER_TOKEN}"
+          Authorization: "Bearer ${CLUSTER_TOKEN_VIEW}"
           X-Custom-Source: project-star    
     kubernetes:
       serviceLocatorMethod:
@@ -188,21 +216,24 @@ tap_gui:
       clusterLocatorMethods:
         - type: "config"
           clusters:
-            - url: ${CLUSTER_URL}
-              name: ${TAP_RUN_CLUSTER_NAME}
-              authProvider: "serviceAccount"
+            - url: $CLUSTER_URL_RUN
+              name: $TAP_RUN_CLUSTER_NAME
+              authProvider: serviceAccount
               skipTLSVerify: true
               skipMetricsLookup: true
-              serviceAccountToken: "${CLUSTER_TOKEN}"
-
+              serviceAccountToken: $CLUSTER_TOKEN_RUN
+            - url: $CLUSTER_URL_BUILD
+              name: $TAP_BUILD_CLUSTER_NAME
+              authProvider: serviceAccount
+              skipTLSVerify: true
+              skipMetricsLookup: true
+              serviceAccountToken: $CLUSTER_TOKEN_BUILD
 
 metadata_store:
   app_service_type: LoadBalancer
-
-
 appliveview:
-  ingressEnabled: true
-  ingressDomain: "${alv_domain}" 
+  ingressEnabled: "true"
+  sslDisabled: "true"
 
 EOF
 

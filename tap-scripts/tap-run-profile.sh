@@ -7,7 +7,8 @@ source var.conf
 export TAP_REGISTRY_SERVER=$registry_url
 export TAP_REGISTRY_USER=$registry_user
 export TAP_REGISTRY_PASSWORD=$registry_password
-export TAP_CNRS_DOMAIN=$tap_run_cnrs_domain
+export TAP_CNRS_DOMAIN=$tap_run_domain
+##export TAP_VERSION=1.1.0
 
 cat <<EOF | tee tap-values-run.yaml
 profile: run
@@ -23,13 +24,16 @@ contour:
       type: LoadBalancer
 
 cnrs:
-  domain_name: "${tap_run_cnrs_domain}"
+  domain_name: "${tap_run_domain}"
 
 appliveview_connector:
   backend:
     sslDisabled: "true"
     ingressEnabled: "true"
-    host: appliveview.$alv_domain
+    host: appliveview.$tap_view_domain
+
+excluded_packages:
+  - policy.apps.tanzu.vmware.com
 
 EOF
 
@@ -44,3 +48,4 @@ kubectl get svc -n tanzu-system-ingress
 
 echo "pick external ip from service output  and configure DNS wild card(*) into your DNS server like aws route 53 etc"
 echo "example - *.run.customer0.io ==> <ingress external ip/cname>"
+
