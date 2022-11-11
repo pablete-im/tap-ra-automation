@@ -15,9 +15,6 @@ profile: run
 ceip_policy_disclosed: true
 supply_chain: basic
 
-excluded_packages:
-  - policy.apps.tanzu.vmware.com
-
 contour:
   envoy:
     service:
