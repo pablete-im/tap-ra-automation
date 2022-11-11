@@ -14,7 +14,7 @@ then
     exit 0 
 fi 
 
-if [ -z "$tap_git_catalog_url" ] || [ -z "$tap_view_domain" ] || [ -z "$tap_run_domain" || [ -z "$tap_iterate_domain"]
+if [ -z "$tap_git_catalog_url" ] || [ -z "$tap_view_domain" ] || [ -z "$tap_run_domain" ] || [ -z "$tap_iterate_domain" ]
 then 
     echo 'Error : Any of tap_git_catalog_url, tap_view_domain, tap_run_domain or tap_iterate_domain fields cannot be leave empty into var.conf, please add appropriate value!' 
     exit 0 
