@@ -215,3 +215,13 @@ Please follow below steps
 3. Run ./tap-scripts/tap-delete/tap-delete-single-cluster.sh
 
 ```
+
+### Known issues 
+* View cluster `tap-gui` UI is not able to fetch apps run time resources due to timed out issue , due to cluster communications timed out error.  
+
+Error log 
+```
+Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36\""}
+{"ts":"2022-11-15T20:46:45.905Z","level":"info","meta":{"type":"incomingRequest","service":"backstage"},"msg":"::ffff:10.0.3.196 - - [15/Nov/2022:20:46:45 +0000] \"POST /api/kubernetes/services/spring-music HTTP/1.1\" - - \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36\""}
+{"ts":"2022-11-15T20:47:15.189Z","level":"error","meta":{"type":"plugin","plugin":"kubernetes","service":"backstage"},"err":"action=retrieveObjectsByServiceId service=spring-music, error=Error: connect ETIMEDOUT 10.0.1.73:443"}
+```

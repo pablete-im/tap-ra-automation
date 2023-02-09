@@ -28,12 +28,24 @@ tanzu apps workload create "${TAP_APP_NAME}" --git-repo "${TAP_APP_GIT_URL}" --g
 
 tanzu apps workload create "${TAP_APP_NAME}" \
 --git-repo "${TAP_APP_GIT_URL}" \
---sub-path "${TAP_APP_NAME}" \
---git-branch main \
+--git-branch tap1.3 \
 --type web \
 --label app.kubernetes.io/part-of="${TAP_APP_NAME}" \
---label apps.tanzu.vmware.com/has-tests=true \
+--yes --dry-run > ${TAP_APP_NAME}-workload.yaml
+
+tanzu apps workload create "${TAP_APP_NAME}" \                                                                                                                             ok | 03:47:58 PM 
+--git-repo "${TAP_APP_GIT_URL}" \
+--git-branch tap1.3 \
+--type web \
+--label app.kubernetes.io/part-of="${TAP_APP_NAME}" \
 --yes 
+
+#tanzu apps workload create spring-music \                                                                                                                             ok | 03:47:58 PM 
+#--git-repo https://github.com/PeterEltgroth/spring-music \
+#--git-branch tap1.3 \
+#--type web \
+#--label app.kubernetes.io/part-of=spring-music \
+#--yes
 
 sleep 10
 
