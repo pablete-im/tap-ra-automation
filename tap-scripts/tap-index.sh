@@ -16,14 +16,14 @@ chmod +x var-input-validatation.sh
 ./var-input-validatation.sh
 echo "Step 1 => installing tanzu cli !!!"
 ./tanzu-cli-setup.sh
-echo "Step 2 => Setup TAP View Cluster"
-./tap-view.sh
-echo "Step 3 => Setup TAP Run Cluster"
-./tap-run.sh
-echo "Step 4 => Setup TAP Build Cluster"
-./tap-build.sh
 
-echo "Step 4 => Setup TAP Build Cluster"
+echo "Step 2 => Setup TAP Run Cluster"
+./tap-run.sh
+echo "Step 3 => Setup TAP Build Cluster"
+./tap-build.sh
+echo "Step 4 => Setup TAP View Cluster"
+./tap-view.sh
+echo "Step 5 => Setup TAP Iterate Cluster"
 ./tap-iterate.sh
 
 echo "pick an external ip from service output and configure DNS wildcard records in your dns server for view and run cluster"

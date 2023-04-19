@@ -116,7 +116,7 @@ EOF
 
 #switch to tap build cluster to get token 
 echo "login to build cluster to apply tap-gui-viewer-service-account-rbac.yaml"
-aws eks --region $aws_region update-kubeconfig --name ${TAP_BUILD_CLUSTER_NAME}
+kubectl config use-context ${TAP_BUILD_CLUSTER_USER}@${TAP_BUILD_CLUSTER_NAME}
 kubectl apply -f tap-gui-viewer-service-account-rbac.yaml
 
 CLUSTER_URL_BUILD=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
@@ -127,7 +127,7 @@ CLUSTER_TOKEN_BUILD=$(kubectl -n tap-gui get secret $(kubectl -n tap-gui get sa 
 
 #switch to tap run cluster to get token 
 echo "login to run cluster to apply tap-gui-viewer-service-account-rbac.yaml"
-aws eks --region $aws_region update-kubeconfig --name ${TAP_RUN_CLUSTER_NAME}
+kubectl config use-context ${TAP_RUN_CLUSTER_USER}@${TAP_RUN_CLUSTER_NAME}
 kubectl apply -f tap-gui-viewer-service-account-rbac.yaml
 
 CLUSTER_URL_RUN=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
@@ -137,8 +137,9 @@ CLUSTER_TOKEN_RUN=$(kubectl -n tap-gui get secret $(kubectl -n tap-gui get sa ta
 	| base64 --decode)
 
 echo  "Login to View Cluster !!! "
-#login to kubernets eks view cluster and get token
-aws eks --region $aws_region update-kubeconfig --name ${TAP_VIEW_CLUSTER_NAME}
+#login to kubernets view cluster and get token
+kubectl config use-context ${TAP_VIEW_CLUSTER_USER}@${TAP_VIEW_CLUSTER_NAME}
+kubectl apply -f tap-gui-viewer-service-account-rbac.yaml
 
 CLUSTER_URL_VIEW=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
 CLUSTER_TOKEN_VIEW=$(kubectl -n tap-gui get secret $(kubectl -n tap-gui get sa tap-gui-viewer -o=json \
