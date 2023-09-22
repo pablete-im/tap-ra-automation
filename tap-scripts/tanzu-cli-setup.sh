@@ -33,8 +33,8 @@ if [ "$os" == "$var" ]; then
 
 #file name - mac= tanzu-framework-darwin-amd64.tar , linux= tanzu-framework-linux-amd64.tar
 
-
-tanzucliurl=https://network.tanzu.vmware.com/api/v2/products/tanzu-application-platform/releases/1239018/product_files/1404617/download
+            
+tanzucliurl=https://network.tanzu.vmware.com/api/v2/products/tanzu-application-platform/releases/1283644/product_files/1457671/download
 tanzuclifilename=tanzu-framework-darwin-amd64.tar
 
 mkdir $HOME/tanzu
@@ -64,8 +64,7 @@ else
 
 
 #file name - mac= tanzu-framework-darwin-amd64.tar , linux= tanzu-framework-linux-amd64.tar
-
-tanzucliurl=https://network.tanzu.vmware.com/api/v2/products/tanzu-application-platform/releases/1239018/product_files/1404618/download
+tanzucliurl=https://network.tanzu.vmware.com/api/v2/products/tanzu-application-platform/releases/1283644/product_files/1457672/download
 tanzuclifilename=tanzu-framework-linux-amd64.tar
 
 

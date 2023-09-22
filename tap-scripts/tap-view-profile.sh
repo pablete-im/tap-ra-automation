@@ -195,6 +195,13 @@ tap_gui:
               skipTLSVerify: true
               skipMetricsLookup: true
               serviceAccountToken: $CLUSTER_TOKEN_BUILD
+    auth:
+      environment: development
+      providers:
+        github:
+          development:
+            clientId: "$GITHUB_AUTH_CLIENT_ID"
+            clientSecret: "$GITHUB_AUTH_CLIENT_SECRET"
 
 metadata_store:
   app_service_type: LoadBalancer

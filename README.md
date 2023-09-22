@@ -60,30 +60,38 @@ Add following details into `/tap-scripts/var.conf` file to fullfill tap prerequi
 
 TAP_DEV_NAMESPACE="default"
 os=<terminal os as m or l.  m for Mac , l for linux/ubuntu>
+INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:2354688e46d4bb4060f74fca069513c9b42ffa17a0a6d5b0dbb81ed52242ea44
 INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
-INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:54bf611711923dccd7c7f10603c846782b90644d48f1cb570b43a082d18e23b9
+TAP_VERSION=1.4.4
+tanzu_ess_filename_m=tanzu-cluster-essentials-darwin-amd64-1.4.1.tgz
+tanzu_ess_filename_l=tanzu-cluster-essentials-linux-amd64-1.4.1.tgz
+tanzu_ess_url_m=https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1249982/product_files/1423996/download
+tanzu_ess_url_l=https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1249982/product_files/1423994/download
 DOCKERHUB_REGISTRY_URL=index.docker.io
-TAP_VERSION=1.3.0
 TAP_NAMESPACE="tap-install"
 tanzu_net_reg_user=<Provide tanzu net user>
 tanzu_net_reg_password=<Provide tanzu net password>
 tanzu_net_api_token=<Provide tanzu net token>
-aws_region=<aws region where tap eks clusters created>
 registry_url=<Provide user registry url>
 registry_user=<Provide user registry userid>
 registry_password=<Provide user registry password>
-tap_run_cnrs_domain=<run cluster sub domain example like : run.ab-tap.customer0.io >
-alv_domain=<app live view  sub domain example like :alv.ab-tap.customer0.io >
-TAP_RUN_CLUSTER_NAME="tap-run"
-TAP_GITHUB_TOKEN=< git hub token>
-tap_view_app_domain=<view  cluster sub domain example like :view.ab-tap.customer0.io>
+aws_region=<aws region where tap eks clusters created>
+tap_run_domain=<run cluster sub domain example like : run.ab-tap.customer0.io >
+tap_view_domain=<view cluster sub domain example like : view.ab-tap.customer0.io >
+tap_iterate_domain=<iterate cluster sub domain example like : iterate.ab-tap.customer0.io >
 tap_git_catalog_url=<git catelog url example like : https://github.com/sendjainabhi/tap/blob/main/catalog-info.yaml>
+TAP_RUN_CLUSTER_NAME="tap-run"
+TAP_BUILD_CLUSTER_NAME="tap-build"
+TAP_VIEW_CLUSTER_NAME="tap-view"
+TAP_ITERATE_CLUSTER_NAME="tap-iterate"
+GITHUB_AUTH_CLIENT_ID=<GitHub App Client ID for GitHub Auh provider configuration for tap-gui>
+GITHUB_AUTH_CLIENT_SECRET=<GitHub App Client Secret for GitHub Auh provider configuration for tap-gui>
 
 #tap demo app properties
-TAP_APP_NAME="tanzu-java-web-app"
-TAP_APP_GIT_URL="https://github.com/vmware-tanzu/application-accelerator-samples"
-
+TAP_APP_NAME="spring-music"
+TAP_APP_GIT_URL="https://github.com/PeterEltgroth/spring-music"
 ```
+
 ## Install TAP
 ### Build EKS clusters 
 Execute following steps to build aws resources for TAP. 
