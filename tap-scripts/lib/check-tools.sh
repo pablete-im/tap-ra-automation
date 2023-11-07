@@ -8,7 +8,7 @@ check_for_awk(){
     exit 1
   fi
 
-  awk -version
+  awk --version
 }
 
 check_for_aws(){
@@ -26,8 +26,8 @@ check_for_eksctl(){
   if ! command -v eksctl &> /dev/null; then
     echo "eksctl is not installed. See https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html"
     echo "Installing eksctl"
-    echo "Downlaoding: https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_$(uname -m).tar.gz"
-    curl --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_$(uname -m).tar.gz" | tar xz -C /tmp
+    echo "Downlaoding: https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_$(dpkg --print-architecture).tar.gz"
+    curl --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_$(dpkg --print-architecture).tar.gz" | tar xz -C /tmp
     sudo mv /tmp/eksctl /usr/local/bin/eksctl
   fi
   

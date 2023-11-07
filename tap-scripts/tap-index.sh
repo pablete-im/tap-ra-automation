@@ -24,11 +24,8 @@ echo "Step 4 => Setup TAP Build Cluster"
 ./tap-build.sh
 echo "Step 5 => Setup TAP Iterate Cluster"
 ./tap-iterate.sh
+echo "Step 6 => Create DNS records in Route53"
+./route53-record.sh
 
-echo "pick an external ip from service output and configure DNS wildcard records in your dns server for view and run cluster"
-echo "example view cluster - *.view.customer0.io ==> <ingress external ip/cname>"
-echo "example run cluster - *.run.customer0.io ==> <ingress external ip/cname> " 
-echo "example iterate cluster - *.iter.customer0.io ==> <ingress external ip/cname> " 
-
-echo "Step 5 => Deploy sample app"
+echo "Step 7 => Deploy sample app"
 ./tap-demo-app-deploy.sh

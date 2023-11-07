@@ -1,0 +1,13 @@
+aws_region              = "eu-west-1"
+run_nlb_dns_name            = $NLB_DNS_NAME_TAP_RUN
+run_nlb_zone_id             = $NLB_ZONE_ID_TAP_RUN
+run_route53_hosted_zone_id  = $ROUTE53_HOSTED_ZONE_ID_TAP_RUN
+run_full_domain             = $FULL_DOMAIN_TAP_RUN
+view_alb_dns_name            = $ALB_DNS_NAME_TAP_VIEW
+view_alb_zone_id             = $ALB_ZONE_ID_TAP_VIEW
+view_route53_hosted_zone_id  = $ROUTE53_HOSTED_ZONE_ID_TAP_VIEW
+view_full_domain             = $FULL_DOMAIN_TAP_VIEW
+iterate_alb_dns_name            = $ALB_DNS_NAME_TAP_ITERATE
+iterate_alb_zone_id             = $ALB_ZONE_ID_TAP_ITERATE
+iterate_route53_hosted_zone_id  = $ROUTE53_HOSTED_ZONE_ID_TAP_ITERATE
+iterate_full_domain             = $FULL_DOMAIN_TAP_ITERATE
