@@ -207,6 +207,9 @@ learningcenter:
   ingressClass: contour
 tap_gui:
   service_type: ClusterIP
+  tls:
+    namespace: cert-manager
+    secretName: tap-gui
   app_config:
     catalog:
       locations:
@@ -245,6 +248,65 @@ EOF
 tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file tap-values-view.yaml -n "${TAP_NAMESPACE}"
 tanzu package installed get tap -n "${TAP_NAMESPACE}"
 
+# create LetsEncrypt certificate for tap-gui
+
+cat <<EOF | tee tap-view-certificate.yaml
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-registry
+  namespace: cert-manager
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+ name: tap-acme-http01-solver
+ namespace: cert-manager 
+imagePullSecrets:
+ - name: tap-registry
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-http01-issuer
+  namespace: cert-manager
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: $CERTIFICATE_ADMIN_EMAIL
+    privateKeySecretRef:
+      name: letsencrypt-http01-issuer
+    solvers:
+    - http01:
+        ingress:
+          class: contour
+          podTemplate:
+            spec:
+              serviceAccountName: tap-acme-http01-solver
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: cert-manager
+  name: tap-gui
+spec:
+  commonName: tap-gui.${tap_view_domain}
+  dnsNames:
+    - tap-gui.${tap_view_domain}
+  issuerRef:
+    name: letsencrypt-http01-issuer
+    kind: ClusterIssuer
+  secretName: tap-gui
+
+EOF
+
+kubectl apply -f tap-view-certificate.yaml
 
 # ensure all build cluster packages are installed succesfully
 tanzu package installed list -A
