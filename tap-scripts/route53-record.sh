@@ -30,7 +30,7 @@ echo "login to run cluster to obtain envoy service LB information:"
 aws eks --region $aws_region update-kubeconfig --name $TAP_RUN_CLUSTER_NAME
 
 export NLB_DNS_NAME_TAP_RUN=$(get_lb_svc_hotname)
-export NLB_ZONE_ID_TAP_RUN=$(get_nlb_zone_id $ELB_DNS_NAME_TAP_RUN)
+export NLB_ZONE_ID_TAP_RUN=$(get_nlb_zone_id $NLB_DNS_NAME_TAP_RUN)
 
 #replace tap_full_domain by MAIN_FQDN
 BASE_DOMAIN=$(get_base_domain_from_full_domain $tap_run_domain)
