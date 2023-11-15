@@ -191,13 +191,13 @@ echo CLUSTER_TOKEN_BUILD: $CLUSTER_TOKEN_BUILD
 #export TAP_REGISTRY_PASSWORD=$registry_password
 
 
-
 cat <<EOF | tee tap-values-view.yaml
 profile: view
 ceip_policy_disclosed: true
 
 shared:
   ingress_domain: "${tap_view_domain}" 
+  ingress_issuer: letsencrypt-http01-issuer
 contour:
   envoy:
     service:
@@ -205,11 +205,10 @@ contour:
 learningcenter:
   ingressDomain: "learning.${tap_view_domain}"
   ingressClass: contour
+  ingressSecret:
+    secretName: learning-center-cert-secret
 tap_gui:
   service_type: ClusterIP
-  tls:
-    namespace: cert-manager
-    secretName: tap-gui
   app_config:
     catalog:
       locations:
@@ -246,17 +245,14 @@ appliveview:
 EOF
 
 tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file tap-values-view.yaml -n "${TAP_NAMESPACE}"
-tanzu package installed get tap -n "${TAP_NAMESPACE}"
 
-# create LetsEncrypt certificate for tap-gui
-
-cat <<EOF | tee tap-view-certificate.yaml
-
+# create LetsEncrypt Certificate Issuer for the TAP View profile
+cat <<EOF | tee tap-view-clusterissuer.yaml
 apiVersion: v1
 kind: Secret
 metadata:
   name: tap-registry
-  namespace: cert-manager
+  namespace: api-portal
   annotations:
     secretgen.carvel.dev/image-pull-secret: ""
 type: kubernetes.io/dockerconfigjson
@@ -267,7 +263,83 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
  name: tap-acme-http01-solver
- namespace: cert-manager 
+ namespace: api-portal 
+imagePullSecrets:
+ - name: tap-registry
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-registry
+  namespace: app-live-view
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+ name: tap-acme-http01-solver
+ namespace: app-live-view 
+imagePullSecrets:
+ - name: tap-registry
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-registry
+  namespace: metadata-store
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+ name: tap-acme-http01-solver
+ namespace: metadata-store 
+imagePullSecrets:
+ - name: tap-registry
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-registry
+  namespace: tap-gui
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+ name: tap-acme-http01-solver
+ namespace: tap-gui 
+imagePullSecrets:
+ - name: tap-registry
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-registry
+  namespace: learningcenter
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+ name: tap-acme-http01-solver
+ namespace: learningcenter 
 imagePullSecrets:
  - name: tap-registry
 ---
@@ -293,22 +365,23 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  namespace: cert-manager
-  name: tap-gui
+  namespace: learningcenter
+  name: learning-center-cert
 spec:
-  commonName: tap-gui.${tap_view_domain}
+  commonName: learningcenter-guided.learning.${tap_view_domain}
   dnsNames:
-    - tap-gui.${tap_view_domain}
+    - learningcenter-guided.learning.${tap_view_domain}
   issuerRef:
     name: letsencrypt-http01-issuer
     kind: ClusterIssuer
-  secretName: tap-gui
+  secretName: learning-center-cert-secret
 
 EOF
 
-kubectl apply -f tap-view-certificate.yaml
+kubectl apply -f tap-view-clusterissuer.yaml
 
-# ensure all build cluster packages are installed succesfully
+tanzu package installed get tap -n "${TAP_NAMESPACE}"
+# ensure all view cluster packages are installed succesfully
 tanzu package installed list -A
 
 kubectl get svc -n tanzu-system-ingress

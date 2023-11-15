@@ -27,6 +27,7 @@ profile: run
 ceip_policy_disclosed: true
 shared:
   ingress_domain: "${tap_run_domain}"
+  ingress_issuer: letsencrypt-http01-issuer
 
 supply_chain: basic
 
@@ -41,6 +42,7 @@ contour:
         LBType: nlb
 cnrs:
   domain_name: "${tap_run_domain}"
+  ingress_issuer: letsencrypt-http01-issuer
 
 appliveview_connector:
   backend:
@@ -52,14 +54,38 @@ appliveview_connector:
 EOF
 
 tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file tap-values-run.yaml -n "${TAP_NAMESPACE}"
-tanzu package installed get tap -n "${TAP_NAMESPACE}"
 
-# check all build cluster package installed succesfully
+# create LetsEncrypt Certificate Issuer for the TAP Run profile
+cat <<EOF | tee tap-run-clusterissuer.yaml
+
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-http01-issuer
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: $CERTIFICATE_ADMIN_EMAIL
+    privateKeySecretRef:
+      name: letsencrypt-http01-issuer
+    solvers:
+    - http01:
+        ingress:
+          class: contour
+          podTemplate:
+            spec:
+              serviceAccountName: tap-acme-http01-solver
+EOF
+
+kubectl apply -f tap-run-clusterissuer.yaml
+
+tanzu package installed get tap -n "${TAP_NAMESPACE}"
+# check all run cluster packages installed succesfully
 tanzu package installed list -A
 
 # check ingress external ip
 kubectl get svc -n tanzu-system-ingress
 
-echo "pick external ip from service output  and configure DNS wild card(*) into your DNS server like aws route 53 etc"
-echo "example - *.run.customer0.io ==> <ingress external ip/cname>"
+#echo "pick external ip from service output  and configure DNS wild card(*) into your DNS server like aws route 53 etc"
+#echo "example - *.run.customer0.io ==> <ingress external ip/cname>"
 

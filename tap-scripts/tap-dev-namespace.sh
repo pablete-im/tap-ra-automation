@@ -35,6 +35,13 @@ data:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+ name: tap-acme-http01-solver
+imagePullSecrets:
+ - name: tap-registry
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
   name: default
 secrets:
   - name: registry-credentials

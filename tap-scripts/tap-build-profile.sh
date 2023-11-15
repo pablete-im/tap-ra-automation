@@ -29,6 +29,8 @@ export INSTALL_REGISTRY_PASSWORD=$tanzu_net_reg_password
 cat <<EOF | tee tap-values-build.yaml
 profile: build
 ceip_policy_disclosed: true
+shared:
+  ingress_issuer: letsencrypt-http01-issuer
 excluded_packages:
   - contour.tanzu.vmware.com
 buildservice:
@@ -72,8 +74,31 @@ EOF
 
 tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file tap-values-build.yaml -n "${TAP_NAMESPACE}"
 
-tanzu package installed get tap -n "${TAP_NAMESPACE}"
+# create LetsEncrypt Certificate Issuer for the TAP Build profile
+cat <<EOF | tee tap-build-clusterissuer.yaml
 
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-http01-issuer
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: $CERTIFICATE_ADMIN_EMAIL
+    privateKeySecretRef:
+      name: letsencrypt-http01-issuer
+    solvers:
+    - http01:
+        ingress:
+          class: contour
+          podTemplate:
+            spec:
+              serviceAccountName: tap-acme-http01-solver
+EOF
+
+kubectl apply -f tap-build-clusterissuer.yaml
+
+tanzu package installed get tap -n "${TAP_NAMESPACE}"
 # check all build cluster package installed succesfully
 tanzu package installed list -A
 
