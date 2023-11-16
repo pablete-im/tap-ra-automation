@@ -27,6 +27,11 @@ ceip_policy_disclosed: true
 
 shared:
   ingress_issuer: letsencrypt-http01-issuer
+  image_registry: 
+    project_path: ${INSTALL_REGISTRY_HOSTNAME}
+    secret: 
+      name: tap-registry
+      namespace: $TAP_NAMESPACE
 
 buildservice:
   kp_default_repository: "${TAP_REGISTRY_SERVER}/build-service"
@@ -78,9 +83,6 @@ spec:
     - http01:
         ingress:
           class: contour
-          podTemplate:
-            spec:
-              serviceAccountName: tap-acme-http01-solver
 EOF
 
 kubectl apply -f tap-iterate-clusterissuer.yaml

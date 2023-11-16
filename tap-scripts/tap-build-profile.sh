@@ -31,6 +31,11 @@ profile: build
 ceip_policy_disclosed: true
 shared:
   ingress_issuer: letsencrypt-http01-issuer
+  image_registry: 
+    project_path: ${INSTALL_REGISTRY_HOSTNAME}
+    secret: 
+      name: tap-registry
+      namespace: $TAP_NAMESPACE
 excluded_packages:
   - contour.tanzu.vmware.com
 buildservice:
@@ -91,9 +96,6 @@ spec:
     - http01:
         ingress:
           class: contour
-          podTemplate:
-            spec:
-              serviceAccountName: tap-acme-http01-solver
 EOF
 
 kubectl apply -f tap-build-clusterissuer.yaml

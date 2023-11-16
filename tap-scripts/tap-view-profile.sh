@@ -198,6 +198,11 @@ ceip_policy_disclosed: true
 shared:
   ingress_domain: "${tap_view_domain}" 
   ingress_issuer: letsencrypt-http01-issuer
+  image_registry: 
+    project_path: ${INSTALL_REGISTRY_HOSTNAME}
+    secret: 
+      name: tap-registry
+      namespace: $TAP_NAMESPACE
 contour:
   envoy:
     service:
@@ -248,101 +253,6 @@ tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file 
 
 # create LetsEncrypt Certificate Issuer for the TAP View profile
 cat <<EOF | tee tap-view-clusterissuer.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: tap-registry
-  namespace: api-portal
-  annotations:
-    secretgen.carvel.dev/image-pull-secret: ""
-type: kubernetes.io/dockerconfigjson
-data:
-  .dockerconfigjson: e30K
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
- name: tap-acme-http01-solver
- namespace: api-portal 
-imagePullSecrets:
- - name: tap-registry
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: tap-registry
-  namespace: app-live-view
-  annotations:
-    secretgen.carvel.dev/image-pull-secret: ""
-type: kubernetes.io/dockerconfigjson
-data:
-  .dockerconfigjson: e30K
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
- name: tap-acme-http01-solver
- namespace: app-live-view 
-imagePullSecrets:
- - name: tap-registry
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: tap-registry
-  namespace: metadata-store
-  annotations:
-    secretgen.carvel.dev/image-pull-secret: ""
-type: kubernetes.io/dockerconfigjson
-data:
-  .dockerconfigjson: e30K
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
- name: tap-acme-http01-solver
- namespace: metadata-store 
-imagePullSecrets:
- - name: tap-registry
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: tap-registry
-  namespace: tap-gui
-  annotations:
-    secretgen.carvel.dev/image-pull-secret: ""
-type: kubernetes.io/dockerconfigjson
-data:
-  .dockerconfigjson: e30K
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
- name: tap-acme-http01-solver
- namespace: tap-gui 
-imagePullSecrets:
- - name: tap-registry
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: tap-registry
-  namespace: learningcenter
-  annotations:
-    secretgen.carvel.dev/image-pull-secret: ""
-type: kubernetes.io/dockerconfigjson
-data:
-  .dockerconfigjson: e30K
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
- name: tap-acme-http01-solver
- namespace: learningcenter 
-imagePullSecrets:
- - name: tap-registry
----
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -358,9 +268,6 @@ spec:
     - http01:
         ingress:
           class: contour
-          podTemplate:
-            spec:
-              serviceAccountName: tap-acme-http01-solver
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
