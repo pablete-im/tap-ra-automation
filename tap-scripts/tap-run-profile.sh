@@ -22,17 +22,31 @@ export TAP_REGISTRY_PASSWORD=$registry_password
 export TAP_CNRS_DOMAIN=$tap_run_domain
 ##export TAP_VERSION=1.1.0
 
+SHARED_INGRESS_ISSUER_CONFIG=""
+CNRS_TLS_CONFIG=""
+CNRS_INGRESS_CONFIG=""
+if [[ -n ${TLS_CERT_FILE} && -n ${TLS_KEY_FILE} ]] ; 
+then
+  echo  "Creating configurations for custom wildcard certificate!"
+  # If Custom wildcard certificate is used, configure secrets on a per-component basis
+  ## cnrs
+  kubectl create secret tls cnrs-cert --cert $TLS_CERT_FILE --key $TLS_KEY_FILE -n ${TAP_DEV_NAMESPACE};
+  CNRS_TLS_CONFIG="  default_tls_secret: \"${TAP_DEV_NAMESPACE}/cnrs-cert\""
+  CNRS_INGRESS_CONFIG='  ingress_issuer: ""'
+else
+  #Shared Ingress is needed when not using custom certificates
+  SHARED_INGRESS_ISSUER_CONFIG='  ingress_issuer: letsencrypt-http01-issuer'
+  CNRS_INGRESS_CONFIG='  ingress_issuer: letsencrypt-http01-issuer'
+
+fi
+
+echo  "Installing TAP Packages!"
 cat <<EOF | tee tap-values-run.yaml
 profile: run
 ceip_policy_disclosed: true
 shared:
   ingress_domain: "${tap_run_domain}"
-  ingress_issuer: letsencrypt-http01-issuer
-  image_registry: 
-    project_path: ${INSTALL_REGISTRY_HOSTNAME}
-    secret: 
-      name: tap-registry
-      namespace: $TAP_NAMESPACE
+${SHARED_INGRESS_ISSUER_CONFIG}
 
 supply_chain: basic
 
@@ -47,7 +61,8 @@ contour:
         LBType: nlb
 cnrs:
   domain_name: "${tap_run_domain}"
-  ingress_issuer: letsencrypt-http01-issuer
+${CNRS_INGRESS_CONFIG}
+${CNRS_TLS_CONFIG}
 
 appliveview_connector:
   backend:
@@ -60,9 +75,28 @@ EOF
 
 tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file tap-values-run.yaml -n "${TAP_NAMESPACE}"
 
-# create LetsEncrypt Certificate Issuer for the TAP Run profile
-cat <<EOF | tee tap-run-clusterissuer.yaml
-
+# These steps need to be done after TAP installation, as it depends on cert-manager
+if [[ -n ${TLS_CERT_FILE} && -n ${TLS_KEY_FILE} ]] ; 
+then
+  # Create TLSCertificateDelegation for CNRS for the TAP Run profile if custom certs are used
+  echo "Creating TLSCertificateDelegation for CNRS..."
+  cat <<EOF | tee tap-run-tlscertdelegation.yaml
+apiVersion: projectcontour.io/v1
+kind: TLSCertificateDelegation
+metadata:
+  name: default-delegation
+  namespace: ${TAP_DEV_NAMESPACE}
+spec:
+  delegations:
+    - secretName: cnrs-cert
+      targetNamespaces:
+        - "${TAP_DEV_NAMESPACE}"
+EOF
+  kubectl apply -f tap-run-tlscertdelegation.yaml
+else
+  # Create LetsEncrypt Certificate Issuer for the TAP Run profile IF NO custom certs are used
+  echo  "Creating ClusterIssuer!"
+  cat <<EOF | tee tap-run-clusterissuer.yaml
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -77,9 +111,12 @@ spec:
     - http01:
         ingress:
           class: contour
+          podTemplate:
+            spec:
+              serviceAccountName: tap-acme-http01-solver
 EOF
-
-kubectl apply -f tap-run-clusterissuer.yaml
+  kubectl apply -f tap-run-clusterissuer.yaml
+fi
 
 tanzu package installed get tap -n "${TAP_NAMESPACE}"
 # check all run cluster packages installed succesfully

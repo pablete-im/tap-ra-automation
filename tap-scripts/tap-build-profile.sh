@@ -25,17 +25,19 @@ export TAP_REGISTRY_PASSWORD=$registry_password
 export INSTALL_REGISTRY_USERNAME=$tanzu_net_reg_user
 export INSTALL_REGISTRY_PASSWORD=$tanzu_net_reg_password
 
+#Shared Ingress is needed when not using custom certificates
+SHARED_INGRESS_ISSUER_CONFIG=""
+if [[ -z ${TLS_CERT_FILE} || -z ${TLS_KEY_FILE} ]] ; 
+then
+  SHARED_INGRESS_ISSUER_CONFIG=$'shared:\n  ingress_issuer: letsencrypt-http01-issuer'
+fi
+
+echo  "Installing TAP Packages!"
 
 cat <<EOF | tee tap-values-build.yaml
 profile: build
 ceip_policy_disclosed: true
-shared:
-  ingress_issuer: letsencrypt-http01-issuer
-  image_registry: 
-    project_path: ${INSTALL_REGISTRY_HOSTNAME}
-    secret: 
-      name: tap-registry
-      namespace: $TAP_NAMESPACE
+${SHARED_INGRESS_ISSUER_CONFIG}
 excluded_packages:
   - contour.tanzu.vmware.com
 buildservice:
@@ -79,9 +81,13 @@ EOF
 
 tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file tap-values-build.yaml -n "${TAP_NAMESPACE}"
 
-# create LetsEncrypt Certificate Issuer for the TAP Build profile
-cat <<EOF | tee tap-build-clusterissuer.yaml
+# Create LetsEncrypt Certificate Issuer for the TAP Build profile IF NO custom certs are used
+# These steps need to be done after TAP installation, as it depends on cert-manager
+if [[ -z ${TLS_CERT_FILE} || -z ${TLS_KEY_FILE} ]] ; 
+then
+  echo  "Creating ClusterIssuer!"
 
+  cat <<EOF | tee tap-build-clusterissuer.yaml
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -96,7 +102,11 @@ spec:
     - http01:
         ingress:
           class: contour
+          podTemplate:
+            spec:
+              serviceAccountName: tap-acme-http01-solver
 EOF
+fi
 
 kubectl apply -f tap-build-clusterissuer.yaml
 

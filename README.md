@@ -83,6 +83,10 @@ tap_view_domain=<view  cluster sub domain example like :view.ab-tap.customer0.io
 tap_iterate_domain=<iterate cluster sub domain example like : iter.ab-tap.customer0.io>
 tap_full_domain=<full cluster sub domain example like : full.ab-tap.customer0.io>
 
+#tap-gui certificate data
+CERTIFICATE_ADMIN_EMAIL=<Provide Let's encrypt CERT admin user for renewal and expiration notifications. Do not configure if TLS_CERT_FILE and TLS_KEY_FILE are set>
+TLS_CERT_FILE=<Provide custom wilcard certificate for publicly accesible TAP components. Do not configure if CERTIFICATE_ADMIN_EMAIL is set>
+TLS_KEY_FILE=<Provide custom private key for publicly accesible TAP components. Do not configure if CERTIFICATE_ADMIN_EMAIL is set>
 
 TAP_RUN_CLUSTER_NAME="tap-run"
 TAP_BUILD_CLUSTER_NAME="tap-build"
@@ -101,8 +105,6 @@ tanzu_ess_url_l=https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-e
 #tap demo app properties
 TAP_APP_NAME="spring-music"
 TAP_APP_GIT_URL="https://github.com/PeterEltgroth/spring-music"
-
-
 
 ```
 ## Install TAP
