@@ -345,7 +345,7 @@ fi
 
 # TAP PACKAGES CONFIGURATION
 echo  "Installing TAP Packages!"
-cat <<EOF | tee tap-values-view.yaml
+cat <<EOF | tee $TAP_VIEW_CLUSTER_NAME-values.yaml
 profile: view
 ceip_policy_disclosed: true
 
@@ -400,7 +400,7 @@ ${APP_LIVE_VIEW_TLS_CONFIG}
 
 EOF
 
-tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file tap-values-view.yaml -n "${TAP_NAMESPACE}"
+tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file $TAP_VIEW_CLUSTER_NAME-values.yaml -n "${TAP_NAMESPACE}"
 
 # Create LetsEncrypt Certificate Issuer for the TAP View profile IF NO custom certs are used
 # Create Learning Center Certificate IF NO custom certs are used

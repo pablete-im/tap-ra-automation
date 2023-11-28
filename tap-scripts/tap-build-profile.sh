@@ -34,7 +34,7 @@ fi
 
 echo  "Installing TAP Packages!"
 
-cat <<EOF | tee tap-values-build.yaml
+cat <<EOF | tee $TAP_BUILD_CLUSTER_NAME-values.yaml
 profile: build
 ceip_policy_disclosed: true
 ${SHARED_INGRESS_ISSUER_CONFIG}
@@ -79,7 +79,7 @@ appliveview_connector:
 
 EOF
 
-tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file tap-values-build.yaml -n "${TAP_NAMESPACE}"
+tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file $TAP_BUILD_CLUSTER_NAME-values.yaml -n "${TAP_NAMESPACE}"
 
 # Create LetsEncrypt Certificate Issuer for the TAP Build profile IF NO custom certs are used
 # These steps need to be done after TAP installation, as it depends on cert-manager

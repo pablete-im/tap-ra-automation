@@ -41,7 +41,7 @@ else
 fi
 
 echo  "Installing TAP Packages!"
-cat <<EOF | tee tap-values-run.yaml
+cat <<EOF | tee $TAP_RUN_CLUSTER_NAME-values.yaml
 profile: run
 ceip_policy_disclosed: true
 shared:
@@ -73,7 +73,7 @@ appliveview_connector:
 
 EOF
 
-tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file tap-values-run.yaml -n "${TAP_NAMESPACE}"
+tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file $TAP_RUN_CLUSTER_NAME-values.yaml -n "${TAP_NAMESPACE}"
 
 # These steps need to be done after TAP installation, as it depends on cert-manager
 if [[ -n ${TLS_CERT_FILE} && -n ${TLS_KEY_FILE} ]] ; 
