@@ -127,10 +127,13 @@ then
     #ACTIVE CHECK OF K8S UPDATE
     NUM_CLUSTERS_TO_UPDATE=$(echo $CLUSTERS_TO_UPDATE | wc -w)
     UPDATED_CLUSTERS=0
+    TIMEOUT_SECONDS=0
+    MAX_TIMEOUT_SECONDS=600
     echo -n "Updating Kubernetes clusters "
-    while [[ $UPDATED_CLUSTERS -lt $NUM_CLUSTERS_TO_UPDATE ]];
+    while [[ $UPDATED_CLUSTERS -lt $NUM_CLUSTERS_TO_UPDATE && $TIMEOUT_SECONDS -lt $MAX_TIMEOUT_SECONDS ]];
     do
         UPDATED_CLUSTERS=0
+        let "TIMEOUT_SECONDS++"
         sleep 1
         for CLUSTER in $CLUSTERS_TO_UPDATE;
         do
@@ -138,6 +141,12 @@ then
         done
         echo -n "."
     done
+
+    if [[ $TIMEOUT_SECONDS -eq $MAX_TIMEOUT_SECONDS ]];
+    then
+        echo "Timed out updating K8S clusters. Please, check AWS console!"
+        exit 1
+    fi
 
     echo -e "\n All K8S clusters were successfully updated!"
     echo "Updating var.conf file with new K8S version..."
@@ -157,14 +166,13 @@ then
 
     for CLUSTER in $CLUSTERS_TO_UPDATE;
     do
-        #VIEW CLUSTER
         echo "Updating TAP version in $CLUSTER cluster from $TAP_VERSION to $TAP_VERSION_NEW..."
         aws eks --region $aws_region update-kubeconfig --name $CLUSTER
         tanzu package repository add tanzu-tap-repository --url ${INSTALL_REGISTRY_HOSTNAME}/${INSTALL_REPO}/tap-packages:$TAP_VERSION_NEW --namespace $TAP_NAMESPACE
         tanzu package repository get tanzu-tap-repository -n tap-install
         
         # IF UPGRADING TO VERSION HIGHER OR EQUAL 1.7, DELETE learningcenter from the values file, if it exists:
-        versionlte 1.7.0 $TAP_VERSION && yq 'del(.learningcenter)' $CLUSTER-values.yaml > $CLUSTER-values.yaml
+        versionlte 1.7.0 $TAP_VERSION_NEW && yq -i 'del(.learningcenter)' $CLUSTER-values.yaml
 
         tanzu package installed update tap -p tap.tanzu.vmware.com -v ${TAP_VERSION_NEW}  --values-file $CLUSTER-values.yaml -n tap-install    
     done
