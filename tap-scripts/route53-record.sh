@@ -68,6 +68,11 @@ BASE_DOMAIN=\"$(echo $tap_view_domain | awk -F. '{print $(NF-1)"."$NF}')\"
     
 #to be exported
 export FULL_DOMAIN_TAP_VIEW=\"*.${tap_view_domain}\"
+export APIPORTAL_DOMAIN_TAP_VIEW=\"api-portal.${tap_view_domain}\"
+export APPLIVEVIEW_DOMAIN_TAP_VIEW=\"appliveview.${tap_view_domain}\"
+export METADATASTORE_DOMAIN_TAP_VIEW=\"metadata-store.${tap_view_domain}\"
+export TAPGUI_DOMAIN_TAP_VIEW=\"tap-gui.${tap_view_domain}\"
+export LEARNINGCENTER_DOMAIN_TAP_VIEW=\"*.learning.${tap_view_domain}\"
 export ROUTE53_HOSTED_ZONE_ID_TAP_VIEW=$(get_route53_hosted_zone_id $BASE_DOMAIN)
 
 
